@@ -1,0 +1,543 @@
+---
+title: "Lab 6: Math 4753"
+author: "Lucia Nguyen"
+date: "2026-10-08"
+output: 
+  html_document:
+    toc: yes
+    toc_float: yes
+    theme: spacelab
+    highlight: pygments
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Tasks
+## Task 1
+
+- WD
+
+```{r}
+getwd()
+```
+
+## Task 2
+
+- Use layout() to make a plotting region that holds 4 plots, then plot the 4 normal curves
+
+```{r, fig.width=10, fig.height=8}
+# split the plotting window into a 2 by 2 grid
+layout(matrix(1:4, nrow = 2, ncol = 2))
+
+# mu = 10, sigma = 4 (xlim covers mu +/- 4 sigma)
+curve(dnorm(x, mean = 10, sd = 4), xlim = c(-6, 26), col = "Red", lwd = 2,
+      ylab = "Normal density", main = "mu = 10, sigma = 4")
+
+# mu = 10, sigma = 2
+curve(dnorm(x, mean = 10, sd = 2), xlim = c(2, 18), col = "Blue", lwd = 2,
+      ylab = "Normal density", main = "mu = 10, sigma = 2")
+
+# mu = 5, sigma = 10 (very spread out so it needs a wide xlim)
+curve(dnorm(x, mean = 5, sd = 10), xlim = c(-35, 45), col = "Darkgreen", lwd = 2,
+      ylab = "Normal density", main = "mu = 5, sigma = 10")
+
+# mu = 5, sigma = 1/2 (very narrow so it needs a small xlim)
+curve(dnorm(x, mean = 5, sd = 0.5), xlim = c(3, 7), col = "Purple", lwd = 2,
+      ylab = "Normal density", main = "mu = 5, sigma = 1/2")
+```
+
+- $Y \sim N(0, 1), \ P(Y \geq 2)$
+
+```{r}
+# draw the standard normal curve
+curve(dnorm(x, mean = 0, sd = 1), xlim = c(-4, 4), lwd = 2,
+      ylab = "Normal density", main = "P(Y >= 2), Y ~ N(0, 1)")
+
+# x values from 2 out to the end of the plot (stands in for infinity)
+xcurve = seq(2, 4, length = 1000)
+
+# y values on the curve for those x values
+ycurve = dnorm(xcurve, mean = 0, sd = 1)
+
+# shade the area under the curve
+polygon(c(2, xcurve, 4), c(0, ycurve, 0), col = "Red")
+
+# area = 1 - P(Y < 2)
+prob = 1 - pnorm(2, mean = 0, sd = 1)
+prob = round(prob, 4)
+
+# put the area on the graph
+text(2.8, 0.15, paste("Area = ", prob, sep = ""))
+prob
+```
+
+- $Y \sim N(\mu = 4, \sigma = 2), \ P(1 \leq Y < 5)$
+
+```{r}
+# draw the normal curve
+curve(dnorm(x, mean = 4, sd = 2), xlim = c(-4, 12), lwd = 2,
+      ylab = "Normal density", main = "P(1 <= Y < 5), Y ~ N(4, 2)")
+
+# x values between 1 and 5
+xcurve = seq(1, 5, length = 1000)
+ycurve = dnorm(xcurve, mean = 4, sd = 2)
+
+# shade the region
+polygon(c(1, xcurve, 5), c(0, ycurve, 0), col = "Blue")
+
+# area = P(Y < 5) - P(Y < 1)
+prob = pnorm(5, mean = 4, sd = 2) - pnorm(1, mean = 4, sd = 2)
+prob = round(prob, 4)
+
+text(8.5, 0.15, paste("Area = ", prob, sep = ""))
+prob
+```
+
+- $Y \sim N(\mu = 10, \sigma = 4), \ P(Y < 10)$
+
+```{r}
+# draw the normal curve
+curve(dnorm(x, mean = 10, sd = 4), xlim = c(-6, 26), lwd = 2,
+      ylab = "Normal density", main = "P(Y < 10), Y ~ N(10, 4)")
+
+# x values from the left end of the plot up to 10
+xcurve = seq(-6, 10, length = 1000)
+ycurve = dnorm(xcurve, mean = 10, sd = 4)
+
+# shade the region
+polygon(c(-6, xcurve, 10), c(0, ycurve, 0), col = "Darkgreen")
+
+# area = P(Y < 10), should be 0.5 since 10 is the mean
+prob = pnorm(10, mean = 10, sd = 4)
+prob = round(prob, 4)
+
+text(19, 0.08, paste("Area = ", prob, sep = ""))
+prob
+```
+
+- $Y \sim N(\mu = -2, \sigma = \frac{1}{2}), \ P(-3 < Y \leq -2)$
+
+```{r}
+# draw the normal curve
+curve(dnorm(x, mean = -2, sd = 0.5), xlim = c(-4, 0), lwd = 2,
+      ylab = "Normal density", main = "P(-3 < Y <= -2), Y ~ N(-2, 1/2)")
+
+# x values between -3 and -2
+xcurve = seq(-3, -2, length = 1000)
+ycurve = dnorm(xcurve, mean = -2, sd = 0.5)
+
+# shade the region
+polygon(c(-3, xcurve, -2), c(0, ycurve, 0), col = "Purple")
+
+# area = P(Y <= -2) - P(Y <= -3)
+prob = pnorm(-2, mean = -2, sd = 0.5) - pnorm(-3, mean = -2, sd = 0.5)
+prob = round(prob, 4)
+
+text(-0.8, 0.6, paste("Area = ", prob, sep = ""))
+prob
+```
+
+## Task 3
+
+- Overlay the three gamma curves on one plot (no layout)
+
+```{r}
+# shape = 1, scale = 1
+curve(dgamma(x, shape = 1, scale = 1), xlim = c(0, 15), ylim = c(0, 1),
+      col = "Red", lwd = 2, ylab = "Gamma density", main = "Gamma, scale = 1")
+
+# shape = 3, scale = 1 (add = TRUE puts it on the same plot)
+curve(dgamma(x, shape = 3, scale = 1), xlim = c(0, 15), ylim = c(0, 1),
+      col = "Black", lwd = 2, add = TRUE)
+
+# shape = 5, scale = 1
+curve(dgamma(x, shape = 5, scale = 1), xlim = c(0, 15), ylim = c(0, 1),
+      col = "Blue", lwd = 2, add = TRUE)
+
+# label each curve
+text(1.6, 0.6, "shape = 1", col = "Red")
+text(3.5, 0.3, "shape = 3", col = "Black")
+text(6.5, 0.22, "shape = 5", col = "Blue")
+```
+
+- $Y \sim Gamma(shape = 3, scale = 2), \ P(2 < Y < 5)$
+
+```{r}
+# draw the gamma curve
+curve(dgamma(x, shape = 3, scale = 2), xlim = c(0, 20), lwd = 2,
+      ylab = "Gamma density", main = "P(2 < Y < 5), Y ~ Gamma(3, 2)")
+
+# x and y values for the region
+xcurve = seq(2, 5, length = 1000)
+ycurve = dgamma(xcurve, shape = 3, scale = 2)
+
+# shade the region
+polygon(c(2, xcurve, 5), c(0, ycurve, 0), col = "Red")
+
+# area = P(Y < 5) - P(Y < 2)
+prob = pgamma(5, shape = 3, scale = 2) - pgamma(2, shape = 3, scale = 2)
+prob = round(prob, 4)
+
+text(12, 0.1, paste("Area = ", prob, sep = ""))
+prob
+```
+
+- $Y \sim Gamma(shape = 6, scale = 3), \ P(1 \leq Y \leq 4)$
+
+```{r}
+# draw the gamma curve
+curve(dgamma(x, shape = 6, scale = 3), xlim = c(0, 50), lwd = 2,
+      ylab = "Gamma density", main = "P(1 <= Y <= 4), Y ~ Gamma(6, 3)")
+
+# x and y values for the region
+xcurve = seq(1, 4, length = 1000)
+ycurve = dgamma(xcurve, shape = 6, scale = 3)
+
+# shade the region (it is very small because 1 to 4 is way in the left tail)
+polygon(c(1, xcurve, 4), c(0, ycurve, 0), col = "Blue")
+
+# area = P(Y <= 4) - P(Y <= 1)
+prob = pgamma(4, shape = 6, scale = 3) - pgamma(1, shape = 6, scale = 3)
+prob = round(prob, 4)
+
+text(35, 0.04, paste("Area = ", prob, sep = ""))
+prob
+```
+
+- $Y \sim Gamma(shape = 2, scale = 4), \ P(3 \leq Y < 6)$
+
+```{r}
+# draw the gamma curve
+curve(dgamma(x, shape = 2, scale = 4), xlim = c(0, 30), lwd = 2,
+      ylab = "Gamma density", main = "P(3 <= Y < 6), Y ~ Gamma(2, 4)")
+
+# x and y values for the region
+xcurve = seq(3, 6, length = 1000)
+ycurve = dgamma(xcurve, shape = 2, scale = 4)
+
+# shade the region
+polygon(c(3, xcurve, 6), c(0, ycurve, 0), col = "Darkgreen")
+
+# area = P(Y < 6) - P(Y < 3)
+prob = pgamma(6, shape = 2, scale = 4) - pgamma(3, shape = 2, scale = 4)
+prob = round(prob, 4)
+
+text(20, 0.06, paste("Area = ", prob, sep = ""))
+prob
+```
+
+## Task 4
+
+- Use layout() to make 4 squares and plot the 4 chi square curves
+
+```{r, fig.width=10, fig.height=8}
+# 2 by 2 plotting grid
+layout(matrix(1:4, nrow = 2, ncol = 2))
+
+# df = 1 (shoots up to infinity at 0 so ylim is capped)
+curve(dchisq(x, df = 1), xlim = c(0, 10), ylim = c(0, 1.5), col = "Red", lwd = 2,
+      ylab = "Chisq density", main = "df = 1")
+
+# df = 2 (this is the same as an exponential with mean 2)
+curve(dchisq(x, df = 2), xlim = c(0, 10), ylim = c(0, 0.6), col = "Blue", lwd = 2,
+      ylab = "Chisq density", main = "df = 2")
+
+# df = 4
+curve(dchisq(x, df = 4), xlim = c(0, 15), col = "Darkgreen", lwd = 2,
+      ylab = "Chisq density", main = "df = 4")
+
+# df = 20 (looks more normal as df gets bigger)
+curve(dchisq(x, df = 20), xlim = c(0, 45), col = "Purple", lwd = 2,
+      ylab = "Chisq density", main = "df = 20")
+```
+
+- $Y \sim chisq(df = 2), \ P(2 \leq Y \leq 4)$
+
+```{r}
+# draw the chi square curve
+curve(dchisq(x, df = 2), xlim = c(0, 10), lwd = 2,
+      ylab = "Chisq density", main = "P(2 <= Y <= 4), df = 2")
+
+# x and y values for the region
+xcurve = seq(2, 4, length = 1000)
+ycurve = dchisq(xcurve, df = 2)
+
+# shade the region
+polygon(c(2, xcurve, 4), c(0, ycurve, 0), col = "Red")
+
+# area = P(Y <= 4) - P(Y <= 2)
+prob = pchisq(4, df = 2) - pchisq(2, df = 2)
+prob = round(prob, 4)
+
+text(7, 0.3, paste("Area = ", prob, sep = ""))
+prob
+```
+
+- $Y \sim chisq(df = 3), \ P(3 \leq Y \leq 5)$
+
+```{r}
+# draw the chi square curve
+curve(dchisq(x, df = 3), xlim = c(0, 15), lwd = 2,
+      ylab = "Chisq density", main = "P(3 <= Y <= 5), df = 3")
+
+# x and y values for the region
+xcurve = seq(3, 5, length = 1000)
+ycurve = dchisq(xcurve, df = 3)
+
+# shade the region
+polygon(c(3, xcurve, 5), c(0, ycurve, 0), col = "Blue")
+
+# area = P(Y <= 5) - P(Y <= 3)
+prob = pchisq(5, df = 3) - pchisq(3, df = 3)
+prob = round(prob, 4)
+
+text(10, 0.15, paste("Area = ", prob, sep = ""))
+prob
+```
+
+- $Y \sim chisq(df = 20), \ P(10 < Y \leq 21)$
+
+```{r}
+# draw the chi square curve
+curve(dchisq(x, df = 20), xlim = c(0, 50), lwd = 2,
+      ylab = "Chisq density", main = "P(10 < Y <= 21), df = 20")
+
+# x and y values for the region
+xcurve = seq(10, 21, length = 1000)
+ycurve = dchisq(xcurve, df = 20)
+
+# shade the region
+polygon(c(10, xcurve, 21), c(0, ycurve, 0), col = "Darkgreen")
+
+# area = P(Y <= 21) - P(Y <= 10)
+prob = pchisq(21, df = 20) - pchisq(10, df = 20)
+prob = round(prob, 4)
+
+text(38, 0.05, paste("Area = ", prob, sep = ""))
+prob
+```
+
+## Task 5
+
+- Four Weibull curves with different shape and scale (using layout())
+
+```{r, fig.width=10, fig.height=8}
+# 2 by 2 plotting grid
+layout(matrix(1:4, nrow = 2, ncol = 2))
+
+# shape = 1 makes it the same as an exponential
+curve(dweibull(x, shape = 1, scale = 2), xlim = c(0, 10), col = "Red", lwd = 2,
+      ylab = "Weibull density", main = "shape = 1, scale = 2")
+
+# shape = 2, scale = 3
+curve(dweibull(x, shape = 2, scale = 3), xlim = c(0, 10), col = "Blue", lwd = 2,
+      ylab = "Weibull density", main = "shape = 2, scale = 3")
+
+# shape = 3, scale = 5
+curve(dweibull(x, shape = 3, scale = 5), xlim = c(0, 12), col = "Darkgreen", lwd = 2,
+      ylab = "Weibull density", main = "shape = 3, scale = 5")
+
+# shape = 5, scale = 4 (bigger shape makes it more peaked)
+curve(dweibull(x, shape = 5, scale = 4), xlim = c(0, 8), col = "Purple", lwd = 2,
+      ylab = "Weibull density", main = "shape = 5, scale = 4")
+```
+
+- $Y \sim Weibull(shape = 2, scale = 3), \ P(1 \leq Y \leq 4)$
+
+```{r}
+# draw the weibull curve
+curve(dweibull(x, shape = 2, scale = 3), xlim = c(0, 10), lwd = 2,
+      ylab = "Weibull density", main = "P(1 <= Y <= 4), Weibull(2, 3)")
+
+# x and y values for the region
+xcurve = seq(1, 4, length = 1000)
+ycurve = dweibull(xcurve, shape = 2, scale = 3)
+
+# shade the region
+polygon(c(1, xcurve, 4), c(0, ycurve, 0), col = "Red")
+
+# area = P(Y <= 4) - P(Y <= 1)
+prob = pweibull(4, shape = 2, scale = 3) - pweibull(1, shape = 2, scale = 3)
+prob = round(prob, 4)
+
+text(7.5, 0.2, paste("Area = ", prob, sep = ""))
+prob
+```
+
+- $Y \sim Weibull(shape = 3, scale = 5), \ P(Y \leq 6)$
+
+```{r}
+# draw the weibull curve
+curve(dweibull(x, shape = 3, scale = 5), xlim = c(0, 12), lwd = 2,
+      ylab = "Weibull density", main = "P(Y <= 6), Weibull(3, 5)")
+
+# x and y values from 0 to 6
+xcurve = seq(0, 6, length = 1000)
+ycurve = dweibull(xcurve, shape = 3, scale = 5)
+
+# shade the region
+polygon(c(0, xcurve, 6), c(0, ycurve, 0), col = "Blue")
+
+# area = P(Y <= 6)
+prob = pweibull(6, shape = 3, scale = 5)
+prob = round(prob, 4)
+
+text(9.5, 0.15, paste("Area = ", prob, sep = ""))
+prob
+```
+
+- $Y \sim Weibull(shape = 5, scale = 4), \ P(3 < Y < 5)$
+
+```{r}
+# draw the weibull curve
+curve(dweibull(x, shape = 5, scale = 4), xlim = c(0, 8), lwd = 2,
+      ylab = "Weibull density", main = "P(3 < Y < 5), Weibull(5, 4)")
+
+# x and y values for the region
+xcurve = seq(3, 5, length = 1000)
+ycurve = dweibull(xcurve, shape = 5, scale = 4)
+
+# shade the region
+polygon(c(3, xcurve, 5), c(0, ycurve, 0), col = "Darkgreen")
+
+# area = P(Y < 5) - P(Y < 3)
+prob = pweibull(5, shape = 5, scale = 4) - pweibull(3, shape = 5, scale = 4)
+prob = round(prob, 4)
+
+text(6.5, 0.4, paste("Area = ", prob, sep = ""))
+prob
+```
+
+## Task 6
+
+- From ?dbeta: the beta has two shape parameters, shape1 = $\alpha$ and shape2 = $\beta$, both > 0. The density is $f(y) = \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)} y^{\alpha - 1}(1 - y)^{\beta - 1}$ for $0 \leq y \leq 1$, and the mean is $\frac{\alpha}{\alpha + \beta}$. When $\alpha = \beta$ it is symmetric about 0.5, a bigger $\alpha$ pushes it to the right and a bigger $\beta$ pushes it to the left.
+
+```{r, fig.width=10, fig.height=8}
+# 2 by 2 plotting grid
+layout(matrix(1:4, nrow = 2, ncol = 2))
+
+# shape1 = 2, shape2 = 3 (skewed right, mean = 0.4)
+curve(dbeta(x, shape1 = 2, shape2 = 3), xlim = c(0, 1), col = "Red", lwd = 2,
+      ylab = "Beta density", main = "shape1 = 2, shape2 = 3")
+
+# shape1 = 0.5, shape2 = 0.5 (U shape, goes to infinity at 0 and 1)
+curve(dbeta(x, shape1 = 0.5, shape2 = 0.5), xlim = c(0, 1), ylim = c(0, 4),
+      col = "Blue", lwd = 2, ylab = "Beta density", main = "shape1 = 0.5, shape2 = 0.5")
+
+# shape1 = 5, shape2 = 1 (piles up near 1)
+curve(dbeta(x, shape1 = 5, shape2 = 1), xlim = c(0, 1), col = "Darkgreen", lwd = 2,
+      ylab = "Beta density", main = "shape1 = 5, shape2 = 1")
+
+# shape1 = 4, shape2 = 4 (symmetric bell around 0.5)
+curve(dbeta(x, shape1 = 4, shape2 = 4), xlim = c(0, 1), col = "Purple", lwd = 2,
+      ylab = "Beta density", main = "shape1 = 4, shape2 = 4")
+```
+
+- $Y \sim Beta(2, 3), \ P(0.2 \leq Y \leq 0.6)$
+
+```{r}
+# draw the beta curve
+curve(dbeta(x, shape1 = 2, shape2 = 3), xlim = c(0, 1), lwd = 2,
+      ylab = "Beta density", main = "P(0.2 <= Y <= 0.6), Beta(2, 3)")
+
+# x and y values for the region
+xcurve = seq(0.2, 0.6, length = 1000)
+ycurve = dbeta(xcurve, shape1 = 2, shape2 = 3)
+
+# shade the region
+polygon(c(0.2, xcurve, 0.6), c(0, ycurve, 0), col = "Red")
+
+# area = P(Y <= 0.6) - P(Y <= 0.2)
+prob = pbeta(0.6, shape1 = 2, shape2 = 3) - pbeta(0.2, shape1 = 2, shape2 = 3)
+prob = round(prob, 4)
+
+text(0.8, 1.5, paste("Area = ", prob, sep = ""))
+prob
+```
+
+- $Y \sim Beta(4, 4), \ P(0.3 < Y < 0.5)$
+
+```{r}
+# draw the beta curve
+curve(dbeta(x, shape1 = 4, shape2 = 4), xlim = c(0, 1), lwd = 2,
+      ylab = "Beta density", main = "P(0.3 < Y < 0.5), Beta(4, 4)")
+
+# x and y values for the region
+xcurve = seq(0.3, 0.5, length = 1000)
+ycurve = dbeta(xcurve, shape1 = 4, shape2 = 4)
+
+# shade the region
+polygon(c(0.3, xcurve, 0.5), c(0, ycurve, 0), col = "Blue")
+
+# area = P(Y < 0.5) - P(Y < 0.3)
+prob = pbeta(0.5, shape1 = 4, shape2 = 4) - pbeta(0.3, shape1 = 4, shape2 = 4)
+prob = round(prob, 4)
+
+text(0.85, 1.5, paste("Area = ", prob, sep = ""))
+prob
+```
+
+- $Y \sim Beta(5, 1), \ P(Y > 0.8)$
+
+```{r}
+# draw the beta curve
+curve(dbeta(x, shape1 = 5, shape2 = 1), xlim = c(0, 1), lwd = 2,
+      ylab = "Beta density", main = "P(Y > 0.8), Beta(5, 1)")
+
+# x and y values from 0.8 to 1
+xcurve = seq(0.8, 1, length = 1000)
+ycurve = dbeta(xcurve, shape1 = 5, shape2 = 1)
+
+# shade the region
+polygon(c(0.8, xcurve, 1), c(0, ycurve, 0), col = "Darkgreen")
+
+# area = 1 - P(Y <= 0.8)
+prob = 1 - pbeta(0.8, shape1 = 5, shape2 = 1)
+prob = round(prob, 4)
+
+text(0.3, 3, paste("Area = ", prob, sep = ""))
+prob
+```
+
+## Task 7
+
+- I made myncurve() "better" and added it to my package. Now it:
+  - shades the area from $-\infty$ to $a$ and returns $P(X \leq a)$ in a named list (mu, sigma, a, prob, plus extras)
+  - checks all the inputs (sigma must be positive, etc.) and gives clear error messages
+  - also gives the upper tail $P(X > a)$, the z score of $a$, and double checks pnorm() with numerical integration (integrate())
+  - has a new argument n: in real life mu and sigma are usually estimated from a sample, so the probability is also just an estimate. If n is given, it uses the delta method on the z scale, $Var(\hat z) \approx \frac{1}{n} + \frac{\hat z^2}{2(n-1)}$, to give a confidence interval for $P(X \leq a)$ that always stays between 0 and 1
+  - returns an S3 object of class "myncurve" with its own print() method so the output is easy to read
+
+- Run the function from the package
+
+```{r}
+# call myncurve from my package
+MATH4753LucNguyenF26::myncurve(mu = 10, sigma = 5, a = 6)
+```
+
+- Same thing but pretending mu and sigma came from a sample of 25, so it also gives a 95% CI for the probability
+
+```{r}
+MATH4753LucNguyenF26::myncurve(mu = 10, sigma = 5, a = 6, n = 25)
+```
+
+## Task 8
+
+- Use the gamma density to make exponential densities. An exponential with rate $\lambda$ is a gamma with shape = 1 and scale = $\frac{1}{\lambda}$
+
+```{r}
+# exponential with rate = 0.5 made from the gamma
+curve(dgamma(x, shape = 1, scale = 1 / 0.5), xlim = c(0, 10), col = "Red", lwd = 4,
+      ylab = "Density", main = "Exponential from the gamma (rate = 0.5)")
+
+# built in dexp() on top as a dashed line to compare
+curve(dexp(x, rate = 0.5), xlim = c(0, 10), col = "Black", lwd = 2, lty = 2, add = TRUE)
+
+legend("topright", legend = c("dgamma(shape = 1, scale = 2)", "dexp(rate = 0.5)"),
+       col = c("Red", "Black"), lwd = c(4, 2), lty = c(1, 2))
+
+# check numerically that they match at a bunch of x values
+x = seq(0, 10, by = 0.5)
+all.equal(dgamma(x, shape = 1, scale = 1 / 0.5), dexp(x, rate = 0.5))
+```
